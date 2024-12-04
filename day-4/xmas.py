@@ -31,3 +31,24 @@ XMAS = [[XMAS[y][x] + find_word_at(word, x, y)
 total = sum([sum(l) for l in XMAS])
 
 print("numbre of XMAS: " + str(total))
+
+# part 2
+
+word = ['M', 'M', 'S', 'S']
+
+
+def find_x_mas(x, y):
+    if lines[y][x] != 'A':
+        return 0
+    t = [lines[y-1][x-1], lines[y+1][x-1], lines[y-1][x+1], lines[y+1][x+1]]
+    if t[0] == t[3]:
+        return 0
+    t.sort()
+    return all(x == y for x, y in zip(t, word))
+
+
+XMAS = [[find_x_mas(x, y) for x in range(1, w-1)] for y in range(1, h-1)]
+
+total = sum([sum(l) for l in XMAS])
+
+print("numbre of X-MAS: " + str(total))
