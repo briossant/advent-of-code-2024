@@ -15,6 +15,8 @@ for i in range(h):
         lines[y][x] = 'X'
         break
 
+print(x, y)
+
 
 d = 0
 
@@ -36,56 +38,55 @@ def out_of_bounds(x, y):
     return x < 0 or y < 0 or x >= w or y >= h
 
 
+MAX = w*h*10000
+c = ['^', '>', 'v', '<']
+
+
 def check_loop(X, Y, D):
-    loop = False
-    to_add = []
-    nd = (D+1) % 4
+    checked = set((X, Y, D))
     stx, sty = move(X, Y, D)
 
-    if lines[sty][stx].count('#'):
+    if lines[sty][stx] == '#':
         raise ValueError('Non non')
-    if lines[sty][stx] == 'O':
+    if lines[sty][stx] == 'O' or lines[sty][stx] == 'X':
         return
 
-    lines[sty][stx] = '#' + str(D)
-    while True:
-        nx, ny = move(X, Y, nd)
+    lines[sty][stx] = '#'
+    D = (D+1) % 4
+    i = 0
+    while i < MAX:
+        i += 1
+        nx, ny = move(X, Y, D)
         if out_of_bounds(nx, ny):
             break
-        if lines[ny][nx].count('#'):
-            if lines[ny][nx].count(str(nd)) or [nx, ny, nd] in to_add:
-                print(stx, sty, D)
-                loop = True
-                break
-            to_add.append([nx, ny, nd])
-            nd = (nd+1) % 4
+        if ((nx, ny, D) in checked):
+            i = MAX
+            break
+        if lines[ny][nx] == '#':
+            D = (D+1) % 4
         else:
             X, Y = nx, ny
-    lines[sty][stx] = 'O' if loop else '.'
+            checked.add((X, Y, D))
+    lines[sty][stx] = 'O' if i == MAX else '.'
 
 
-c = ['^', '>', 'v', '<']
+i = 0
 while True:
+    i += 1
+    print(i)
     nx, ny = move(x, y, d)
     if out_of_bounds(nx, ny):
         break
-    if lines[ny][nx].count('#'):
-        lines[ny][nx] += str(d)
+    if lines[ny][nx] == '#':
         d = (d+1) % 4
     else:
-        if lines[y][x] != 'O':
+        if lines[y][x] != 'O' and lines[y][x] != 'X':
             lines[y][x] = c[d]
         check_loop(x, y, d)
         x, y = nx, ny
 
 
-def rep(x):
-    if x.count('#'):
-        return '#'
-    return x
-
-
-print("\n".join(["".join(map(rep, l)) for l in lines]))
+print("\n".join(["".join(l) for l in lines]))
 res = sum([l.count('O') for l in lines])
 
 print("part 2, number of loops: "+str(res))
