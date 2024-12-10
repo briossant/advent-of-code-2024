@@ -38,12 +38,12 @@ def out_of_bounds(x, y):
     return x < 0 or y < 0 or x >= w or y >= h
 
 
-MAX = w*h*10000
+MAX = w*h*1
 c = ['^', '>', 'v', '<']
 
 
 def check_loop(X, Y, D):
-    checked = set((X, Y, D))
+    checked = set()
     stx, sty = move(X, Y, D)
 
     if lines[sty][stx] == '#':
@@ -52,21 +52,20 @@ def check_loop(X, Y, D):
         return
 
     lines[sty][stx] = '#'
-    D = (D+1) % 4
     i = 0
     while i < MAX:
         i += 1
         nx, ny = move(X, Y, D)
         if out_of_bounds(nx, ny):
             break
-        if ((nx, ny, D) in checked):
-            i = MAX
-            break
         if lines[ny][nx] == '#':
+            # if ((nx, ny, D) in checked):
+            #    i = MAX
+            #    break
+            # checked.add((nx, ny, D))
             D = (D+1) % 4
         else:
             X, Y = nx, ny
-            checked.add((X, Y, D))
     lines[sty][stx] = 'O' if i == MAX else '.'
 
 
@@ -81,7 +80,7 @@ while True:
         d = (d+1) % 4
     else:
         if lines[y][x] != 'O' and lines[y][x] != 'X':
-            lines[y][x] = c[d]
+            lines[y][x] = 'X'
         check_loop(x, y, d)
         x, y = nx, ny
 
