@@ -1,12 +1,12 @@
 from libaoc import *
 import queue
 
-Map = loadMap()
+Map = MapLoad()
 w = len(Map[0])
 h = len(Map)
 
-st_x, st_y = findInMap(Map, 'S')
-ed_x, ed_y = findInMap(Map, 'E')
+st_x, st_y = MapFind(Map, 'S')
+ed_x, ed_y = MapFind(Map, 'E')
 Map[st_y][st_x] = 0
 
 
@@ -51,16 +51,16 @@ for e in ends:
         res = e + 1
 Map[ed_y][ed_x] = res
 
-printMap(Map, lambda x:
+MapPrint(Map, lambda x:
          format(x, '05d') if type(x) is int else x+'====')
 
 print("res: " + str(res))
 
-nMap = copyMap(Map)
+nMap = MapCopy(Map)
 backrun(nMap, ed_x, ed_y, Map[ed_y][ed_x], -1)
 
-printMap(nMap, lambda x: '.' if x != 'O' and x != '#' else x)
+MapPrint(nMap, lambda x: '.' if x != 'O' and x != '#' else x)
 
-res = countInMap(nMap, 'O')
+res = MapCount(nMap, 'O')
 
 print("res: " + str(res))

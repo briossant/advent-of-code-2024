@@ -18,25 +18,33 @@ def readfile():
     return f.readlines()
 
 
-def loadMap():
+def MapLoad():
     return [list(l.strip()) for l in readfile()]
 
 
-def printMap(Map, fm=lambda x: str(x)):
+def MapPrint(Map, fm=lambda x: str(x)):
     print('\n'.join([''.join([fm(x) for x in l]) for l in Map]))
 
 
-def copyMap(Map):
+def MapCopy(Map):
     return [[x for x in l] for l in Map]
 
 
-def countInMap(Map, e):
+def MapCount(Map, e):
     return sum([l.count(e) for l in Map])
 
 
-def findInMap(Map, e):
+def MapFind(Map, e):
     for y in range(len(Map)):
         for x in range(len(Map[y])):
             if Map[y][x] == e:
                 return x, y
     return -1, -1
+
+
+def findNums(l):
+    return [int(x) for x in re.findall('[0-9]+', l)]
+
+
+def MapIsOutOfBounds(Map, x, y):
+    return x < 0 or y < 0 or x >= len(Map[0]) or y >= len(Map)
