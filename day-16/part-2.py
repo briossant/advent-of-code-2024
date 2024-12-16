@@ -1,42 +1,23 @@
-import re
+from libaoc import *
 import queue
-import functools as ft
-import sys
 
-sys.setrecursionlimit(15000)
-
-f = open("./input.txt", "r")
-# f = open("./example02.txt", "r")
-lines = f.readlines()
-
-Map = [list(l.strip()) for l in lines]
+Map = loadMap()
 w = len(Map[0])
 h = len(Map)
 
-st_x, st_y = 0, 0
-ed_x, ed_y = 0, 0
-for x in range(w):
-    for y in range(h):
-        if Map[y][x] == 'S':
-            st_x = x
-            st_y = y
-            Map[y][x] = 0
-        if Map[y][x] == 'E':
-            ed_x = x
-            ed_y = y
-
-
-dirs = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+st_x, st_y = findInMap(Map, 'S')
+ed_x, ed_y = findInMap(Map, 'E')
+Map[st_y][st_x] = 0
 
 
 def run():
     q = queue.Queue()
-    q.put((st_x, st_y, 1, 0))
+    q.put((st_x, st_y, 2, 0))
     while not q.empty():
         x, y, last_d, cost = q.get()
 
         d = 0
-        for (dx, dy) in dirs:
+        for (dx, dy) in cross_dirs:
             d += 1
             if (d+1) % 4 == last_d:
                 continue
@@ -53,7 +34,7 @@ def run():
 
 def backrun(nMap, x, y, cost, last_c):
     nMap[y][x] = 'O'
-    for (dx, dy) in dirs:
+    for (dx, dy) in cross_dirs:
         ny, nx = y+dy, x+dx
         if Map[ny][nx] != '#' and Map[ny][nx] != '.':
             if Map[ny][nx] < cost or ((Map[ny][nx] == last_c-1002 or Map[ny][nx] == last_c-2) and last_c != -1):
@@ -63,24 +44,23 @@ def backrun(nMap, x, y, cost, last_c):
 run()
 
 
-ends = [Map[ed_y+dy][ed_x+dx] for dx, dy in dirs]
+ends = [Map[ed_y+dy][ed_x+dx] for dx, dy in cross_dirs]
 res = 10000000000000
 for e in ends:
     if e != '#' and e != '.' and e < res:
         res = e + 1
 Map[ed_y][ed_x] = res
 
-print('\n'.join(
-    [''.join([format(x, '05d') if x != 'O' and x != '#' else x+'====' for x in l]) for l in Map]))
+printMap(Map, lambda x:
+         format(x, '05d') if type(x) is int else x+'====')
 
 print("res: " + str(res))
 
-nMap = [[x for x in l] for l in Map]
-
+nMap = copyMap(Map)
 backrun(nMap, ed_x, ed_y, Map[ed_y][ed_x], -1)
 
-print('\n'.join(
-    [''.join(['.' if x != 'O' and x != '#' else x for x in l]) for l in nMap]))
-res = sum([l.count('O') for l in nMap])
+printMap(nMap, lambda x: '.' if x != 'O' and x != '#' else x)
+
+res = countInMap(nMap, 'O')
 
 print("res: " + str(res))
