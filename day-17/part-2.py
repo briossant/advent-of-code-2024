@@ -4,7 +4,7 @@ lines = readfile()
 
 # ordre de grandeur de regA - pas de bruteforce possible;
 # iregA = 100000000000000
-iregA = 0
+iregA = 202366613504256
 iregB = findNums(lines[1])[0]
 iregC = findNums(lines[2])[0]
 
@@ -61,8 +61,8 @@ rp_og = ','.join([str(x) for x in program])
 
 while True:
     rp = runProgram(iregA, iregB, iregC)
-    print(iregA, rp)
+    print(iregA, rp, len(rp)//2, rp_og)
     if rp_og == rp:
         print("res " + str(iregA))
-        break
+    break
     iregA += 1
