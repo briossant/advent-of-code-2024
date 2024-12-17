@@ -18,7 +18,7 @@ def runProgram(regA, regB):
         regB = (regB ^ (regA // pow(2, regB))) ^ 4
         regA //= 8
         if regB % 8 != program[i]:
-            return False
+            return False, i, program[i], regB % 8
         i += 1
         if regA == 0:
             return i == len(program)
@@ -33,39 +33,44 @@ for i in range(1, len(program)):
 print(regAmin)
 print(regAmax)
 
+
+def getRegB(regA):
+    regB = (regA % 8) ^ 1
+    regB = (regB ^ (regA // pow(2, regB))) ^ 4
+    return regB
+
+
+# program = [0, 3, 5, 4, 3, 0]
 regA = [0]
 for i in range(len(program)-1, -1, -1):
-    to_rm = []
+    nregA = []
     for x in range(len(regA)):
-        regA[x] *= 8
         good = False
         for j in range(0, 8):
             nA = regA[x] + j
-            regB = (nA % 8) ^ 1
-            regB = (regB ^ (nA // pow(2, regB))) ^ 4
-            if regB % 8 == program[i]:
-                if not good:
-                    regA[x] += j
-                    good = True
-                else:
-                    regA.append(regA[x] + j)
-        if not good:
-            to_rm.append(x)
-    print(', '.join([str(x) for x in regA]))
-    to_rm.reverse()
-    for x in to_rm:
-        regA.pop(x)
+            if getRegB(nA) % 8 == program[i]:
+                good = True
+                nregA.append(nA*8)
+    print(', '.join([str(x) for x in nregA]))
+    print(i, program[i])
+    regA = nregA
 
 print(regA)
 for rA in regA:
     print(rA, runProgram(rA, 0))
+    print(rA, runProgram(rA//8, 0))
+
+print("min", min(regA)//8)
 
 exit(0)
-iregA = regAmin
-while not runProgram(iregA, iregB):
-    if iregA % 10000 == 0:
-        print(iregA)
-    iregA += 1
-
-
-print(iregA-1)
+for mm in regA:
+    print("###########################")
+    mmm = mm - 10000000
+    mmmm = mm + 10000000
+    while not runProgram(mmm, 0) and mmm < mmmm:
+        mmm += 1
+        if mmm % 10000 == 0:
+            print(mmm)
+    if mmm < mmmm:
+        print("RES", mmm-1)
+        break
