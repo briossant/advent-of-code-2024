@@ -10,12 +10,14 @@ full_dirs = [(-1, 0), (0, 1), (1, 0), (0, -1),
              (-1, -1), (1, 1), (1, -1), (-1, 1)]
 
 
-def readfile():
+def readfile(no_strip=False):
     if len(sys.argv) < 2:
         print("Usage: python " + sys.argv[0] + " [input filename]")
         exit(1)
     f = open(sys.argv[1], "r")
-    return f.readlines()
+    if no_strip:
+        return f.readlines()
+    return [l.strip() for l in f.readlines()]
 
 
 def MapLoad():
