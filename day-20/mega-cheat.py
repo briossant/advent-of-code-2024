@@ -32,7 +32,7 @@ MIN_SAVE = 100
 shortcut = {}
 ttshortcuts = 0
 for x in range(1, w-1):
-    print(x, w)
+    print(x, '/', w-1)
     for y in range(1, h-1):
         if Map[y][x] == '#':
             continue
