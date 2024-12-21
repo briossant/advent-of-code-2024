@@ -47,13 +47,18 @@ FillPaths(dir_keypad, dir_keypad_paths)
                     
 
 
+cache = {}
 
 def MakeMov(paths, code):
-    # starting on "A"
-    moves = ["A"]
-    for i in range(1, len(code)):
-        m = paths[code[i-1:i+1]]
-        moves = [s1+s2 for s1 in moves for s2 in m]
+    if len(code) < 2:
+        # starting on "A"
+        return ["A"]
+    if code in cache:
+        return cache[code]
+    moves = MakeMov(paths, code[1:])
+    m = paths[code[0:2]]
+    moves = [s1+s2 for s1 in moves for s2 in m]
+    cache[code] = moves
     return moves
 
 
@@ -72,6 +77,7 @@ for code in codes:
         for m in moves:
             nmoves.extend(MakeMov(dir_keypad_paths, m))
         moves = nmoves
+        pp.pprint(moves)
     # removing starting "A"
     moves = [m[1:] for m in moves]
 
