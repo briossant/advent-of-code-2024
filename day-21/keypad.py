@@ -7,6 +7,15 @@ num_keypad = ["987", "654", "321", "A0"]
 dir_keypad_paths = {}
 dir_keypad = ["A^", ">v<"]
 
+class Tree:
+    def __init__(self, data):
+        self.children = {}
+        self.ln = len(data)
+        self.data = data
+
+        data = "A" + data
+        self.split = [data[i-1:i+1] for i in range(1,len(data))]
+        self.has_children = False
 
 def MakePath(keypad, stx, sty, edx, edy):
     if stx == edx and sty == edy:
@@ -46,47 +55,52 @@ FillPaths(num_keypad, num_keypad_paths)
 FillPaths(dir_keypad, dir_keypad_paths)
                     
 
+def MakeMov(paths, tree):
+    if not tree.has_children:
+        tt_ln = 0
+        for sp in tree.split:
+            tree.children[sp] = [Tree(s) for s in paths[sp]]
+            tt_ln += tree.children[sp][0].ln
+        tree.ln = tt_ln
+        tree.has_children = True
+        return tt_ln
 
-cache = {}
+    tt_ln = 0
+    for sp in tree.split:
+        min_ln = -1
+        nc = []
+        for child in tree.children[sp]:
+            ln = MakeMov(paths, child)
+            if min_ln == -1 or ln < min_ln:
+                min_ln = ln
+                nc = [child]
+            elif ln == min_ln:
+                nc.append(child)
+        tree.children[sp] = nc
+        tt_ln += min_ln
+    tree.ln = tt_ln
+    return tt_ln
 
-def MakeMov(paths, code):
-    if len(code) < 2:
-        # starting on "A"
-        return ["A"]
-    if code in cache:
-        return cache[code]
-    moves = MakeMov(paths, code[1:])
-    m = paths[code[0:2]]
-    moves = [s1+s2 for s1 in moves for s2 in m]
-    cache[code] = moves
-    return moves
 
 
-# starting on "A"
-codes = ["A"+s for s in  readfile()]
+codes = readfile()
 
 res = 0
 for code in codes:
     nb = int(''.join([str(x) for x in findNums(code)]))
     print(">>>>>", code)
     print("num part:", nb)
+    
+    tree = Tree(code)
+    MakeMov(num_keypad_paths, tree)
+    for _ in range(10):
+        MakeMov(dir_keypad_paths, tree)
 
-    moves = MakeMov(num_keypad_paths, code)
-    for _ in range(2):
-        nmoves = []
-        for m in moves:
-            nmoves.extend(MakeMov(dir_keypad_paths, m))
-        moves = nmoves
-        pp.pprint(moves)
-    # removing starting "A"
-    moves = [m[1:] for m in moves]
+    ln = tree.ln
 
-    lens = min([len(x) for x in moves])
-    min_move = list(filter(lambda x: len(x) == lens, moves))[0]
-    pp.pprint(min_move)
-    print("len min_move:", len(min_move))
+    print("len min_move:", ln)
 
-    cplx = len(min_move) * nb
+    cplx = ln * nb
     print("complexity:", cplx)
     print("")
     res += cplx
