@@ -61,45 +61,32 @@ FillPaths(dir_keypad, dir_keypad_paths)
 
 
 Cache = {}
+CacheAux = {}
+ST_DEPTH = 26
 
+def MakeMoveAux(paths, seg, depth):
+    if seg+str(depth) in CacheAux:
+        return CacheAux[seg+str(depth)]
+    min_len = -1
+    for m in paths[seg]:
+        ln = MakeMov(m, depth-1)
+        if min_len == -1 or ln < min_len:
+            min_len = ln
+    CacheAux[seg+str(depth)] = min_len
+    return min_len
 
-def MakeMov(paths, tree):
-    if not tree.is_cache_original and tree.data+str(tree.depth+1) in Cache:
-        tree.depth += 1
-        return Cache[tree.data+str(tree.depth)].ln
-
-    if not tree.has_children:
-        tt_ln = 0
-        for sp in tree.split:
-            tree.children[sp] = [Tree(s) for s in paths[sp]]
-            tt_ln += tree.children[sp][0].ln
-        tree.ln = tt_ln
-        tree.has_children = True
-        Cache[tree.data + str(tree.depth)] = tree
-        tree.depth += 1
-        tree.is_cache_original = True
-        return tt_ln
-
-    tt_ln = 0
-    for sp in tree.split:
-        min_ln = -1
-        nc = []
-        for child in tree.children[sp]:
-            ln = MakeMov(paths, child)
-            if min_ln == -1 or ln < min_ln:
-                min_ln = ln
-                nc = [child]
-            elif ln == min_ln:
-                nc.append(child)
-        tree.children[sp] = nc
-        tt_ln += min_ln
-    tree.ln = tt_ln
-    if tree.is_cache_original and tree.data+str(tree.depth-1) in Cache:
-        Cache.pop(tree.data + str(tree.depth-1))
-        Cache[tree.data + str(tree.depth)] = tree
-    tree.depth += 1
-    return tt_ln
-
+def MakeMov(moves, depth):
+    if depth == 0:
+        return len(moves)
+    if moves+str(depth) in Cache:
+        return Cache[moves+str(depth)]
+    paths = num_keypad_paths if depth == ST_DEPTH else dir_keypad_paths
+    moves = "A" + moves
+    tt_len = 0
+    for i in range(1, len(moves)):
+        tt_len += MakeMoveAux(paths, moves[i-1:i+1], depth) 
+    Cache[moves+str(depth)] = tt_len
+    return tt_len 
 
 codes = readfile()
 
@@ -109,13 +96,7 @@ for code in codes:
     print(">>>>>", code)
     print("num part:", nb)
 
-    tree = Tree(code)
-    # TODO: go deep first, not layer by layer
-    MakeMov(num_keypad_paths, tree)
-    for _ in range(2):
-        MakeMov(dir_keypad_paths, tree)
-
-    ln = tree.ln
+    ln = MakeMov(code, ST_DEPTH)
 
     print("len min_move:", ln)
 
